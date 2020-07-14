@@ -4,30 +4,67 @@ from win10toast import ToastNotifier #delete if you don't have win10toast instal
 
 notify = ToastNotifier() #delete if you don't have win10toast installed!!!
 
+#! variables
 hours = 0
 minutes = 0
 seconds = 0
 x = 0
 
+#! functions
+def zero():
+    hours = 0
+    minutes = 0
+    seconds = 0
+
 def check():
     if minutes > 60:
         print("Wrong amount!!!")
         t.sleep(1)
+        x = 2
+        zero()
     elif seconds > 60:
         print("Wrong amount!!!")
         t.sleep(1)
+        x = 2
+        zero()
     else:
         return 1
+
+#! main
 while x != 1:
     os.system('cls')
     print("Remember to switch off quick_edit!!!")
     print("In what time do you want your PC to be switched off?")
-    hours = int(input("Hours: "))
-    minutes = int(input("Minutes: "))
-    x = check()
-    if x == 1: 
-        seconds = int(input("Seconds: "))
+    try: 
+        hours = int(input("Hours: "))
         x = check()
+    except ValueError:
+        print("Wrong value")
+        t.sleep(1)
+        zero()
+        x = 2
+    
+    if x != 2:
+        try:
+            minutes = int(input("Minutes: "))
+            x = check()
+        except ValueError:
+            print("Wrong value")
+            t.sleep(1)
+            zero()
+            x = 2
+        
+    if x != 2:
+        if x == 1: 
+            try:
+                seconds = int(input("Seconds: "))
+                x = check()
+            except ValueError:
+                print("Wrong value")
+                t.sleep(1)
+                zero()
+                x = 2
+            
     
 while seconds != -1:
     if hours > 0:
@@ -37,7 +74,7 @@ while seconds != -1:
                 t.sleep(1)
             else: 
                 minutes -=1
-                seconds = 59
+                seconds = 60
         elif minutes == 0:
             if seconds > 0:
                 seconds -=1
@@ -51,7 +88,7 @@ while seconds != -1:
                 t.sleep(1)
         else: 
             minutes -=1
-            seconds = 59
+            seconds = 60
     elif hours == 0 and minutes == 0 and seconds >= 0:
         seconds -=1
         t.sleep(1)
