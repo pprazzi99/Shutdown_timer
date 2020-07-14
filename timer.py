@@ -106,3 +106,5 @@ while seconds != -1:
 
     if hours == 0 and minutes == 0 and seconds == 0:
         os.system('shutdown /s /t 1')
+        
+        
