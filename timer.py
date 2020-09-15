@@ -1,8 +1,16 @@
+#setting notfication flag to 0 as default
+notifierflag = 0
+
+#! importing libraries
 import time as t 
 import os
-from win10toast import ToastNotifier #delete if you don't have win10toast installed!!!
+try:
+    from win10toast import ToastNotifier
+except Exception:
+    notifierflag = 1 
 
-notify = ToastNotifier() #delete if you don't have win10toast installed!!!
+if notifierflag == 0: 
+    notify = ToastNotifier()
 
 #! variables
 hours = 0
@@ -98,13 +106,11 @@ while seconds != -1:
         print("Time left: "+str(hours)+":"+str(minutes)+":"+str(seconds))
         print("\nTo stop press CTRL+C")
 
-    if hours == 0 and minutes == 5 and seconds == 0:
-        notify.show_toast(title="5 minutes to shutdown left", msg="Timer", threaded=True, duration=240) #delete if you don't have win10toast installed!!!
-    
-    if hours == 0 and minutes == 0 and seconds == 30:
-        notify.show_toast(title="30 seconds to shutdown left!", msg="Timer", threaded=True, duration=30) #delete if you don't have win10toast installed!!!
+    if notifierflag == 0: 
+        if hours == 0 and minutes == 5 and seconds == 0:
+            notify.show_toast(title="5 minutes to shutdown left", msg="Timer", threaded=True, duration=240)
+        if hours == 0 and minutes == 0 and seconds == 30:
+            notify.show_toast(title="30 seconds to shutdown left!", msg="Timer", threaded=True, duration=30) 
 
     if hours == 0 and minutes == 0 and seconds == 0:
         os.system('shutdown /s /t 1')
-        
-        
