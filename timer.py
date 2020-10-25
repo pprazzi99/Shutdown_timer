@@ -113,4 +113,4 @@ while seconds != -1:
             notify.show_toast(title="30 seconds to shutdown left!", msg="Timer", threaded=True, duration=30) 
 
     if hours == 0 and minutes == 0 and seconds == 0:
-        os.system('shutdown /s /t 1')
+        os.system('shutdown /s /f /t 1')
