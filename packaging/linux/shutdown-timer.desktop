@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Shutdown Timer
+Comment=Turn the computer off after a countdown or at a set time
+Exec=shutdown-timer
+Icon=shutdown-timer
+Terminal=false
+Categories=Utility;System;

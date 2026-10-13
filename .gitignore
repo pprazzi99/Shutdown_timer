@@ -1,0 +1,5 @@
+/dist/
+/shutdown-timer
+/shutdown-timer.exe
+*.test
+*.out
