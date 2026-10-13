@@ -1,0 +1,101 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-amd64
+          - os: windows-latest
+            target: windows-amd64
+          - os: macos-latest
+            target: macos-universal
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      VERSION: ${{ github.ref_name }}
+      PKG: shutdown-timer-${{ github.ref_name }}-${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Install Fyne build dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libgl1-mesa-dev xorg-dev libwayland-dev libxkbcommon-dev
+
+      - name: Test
+        run: go test ./...
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p "build/$PKG" dist
+          go build -trimpath -ldflags "-s -w -X main.version=$VERSION" -o "build/$PKG/shutdown-timer" .
+          cp packaging/linux/shutdown-timer.desktop "build/$PKG/"
+          cp internal/assets/icon.svg "build/$PKG/shutdown-timer.svg"
+          cp README.md "build/$PKG/"
+          tar -C build -czf "dist/$PKG.tar.gz" "$PKG"
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir -p "build/$PKG" dist
+          go build -trimpath -ldflags "-s -w -H windowsgui -X main.version=$VERSION" -o "build/$PKG/shutdown-timer.exe" .
+          cp README.md "build/$PKG/"
+          (cd build && 7z a -tzip "../dist/$PKG.zip" "$PKG" >/dev/null)
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "11.0"
+        run: |
+          mkdir -p build dist
+          for arch in arm64 amd64; do
+            clang_arch=$arch; [ "$arch" = amd64 ] && clang_arch=x86_64
+            CGO_ENABLED=1 GOARCH=$arch CGO_CFLAGS="-arch $clang_arch" CGO_LDFLAGS="-arch $clang_arch" \
+              go build -trimpath -ldflags "-s -w -X main.version=$VERSION" -o "build/shutdown-timer-$arch" .
+          done
+          app="build/Shutdown Timer.app"
+          mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+          lipo -create -output "$app/Contents/MacOS/shutdown-timer" build/shutdown-timer-arm64 build/shutdown-timer-amd64
+          sed "s/__VERSION__/${VERSION#v}/g" packaging/macos/Info.plist > "$app/Contents/Info.plist"
+          codesign --force --deep --sign - "$app"
+          (cd build && ditto -c -k --keepParent "Shutdown Timer.app" "../dist/$PKG.zip")
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Checksums
+        run: cd dist && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
