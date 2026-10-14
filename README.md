@@ -21,9 +21,9 @@ Get the package for your system from the
 
 | System  | File                                     |
 |---------|------------------------------------------|
-| Windows | `shutdown-timer-vX.Y.Z-windows-amd64.zip`  |
-| Linux   | `shutdown-timer-vX.Y.Z-linux-amd64.tar.gz` |
-| macOS   | `shutdown-timer-vX.Y.Z-macos-universal.zip` (Apple Silicon and Intel) |
+| Windows | `shutdown-timer-v2.0-windows-amd64.zip`    |
+| Linux   | `shutdown-timer-v2.0-linux-amd64.tar.gz`   |
+| macOS   | `shutdown-timer-v2.0-macos-universal.zip` (Apple Silicon and Intel) |
 
 `SHA256SUMS.txt` lists the checksums of every file.
 
