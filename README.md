@@ -55,28 +55,3 @@ go build -o shutdown-timer .
 ```
 
 On Windows, add `-ldflags "-H windowsgui"` so no console window opens.
-
-## Releasing
-
-Push a tag that starts with `v`:
-
-```sh
-git tag v2.0.0
-git push origin v2.0.0
-```
-
-The [Release workflow](.github/workflows/release.yml) runs the tests, builds the
-packages for all three systems and publishes them as a GitHub release. Tags with
-a hyphen, such as `v2.1.0-rc1`, are published as pre-releases.
-
-## Project layout
-
-```
-main.go                 entry point
-internal/ui             Fyne GUI
-internal/countdown      countdown state and warning thresholds (no timers, fully testable)
-internal/schedule       input parsing and deadline calculation
-internal/power          OS-specific shutdown commands
-internal/assets         embedded icon
-packaging/              Linux .desktop file and macOS Info.plist
-```
